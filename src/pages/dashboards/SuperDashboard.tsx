@@ -9,15 +9,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useNavigate } from 'react-router-dom';
 
 export default function SuperDashboard() {
-  const { currentVendor } = useAuth();
+  const { user } = useAuth();
   const { vendors } = useVendorStore();
   const navigate = useNavigate();
   
-  // Only super vendors have access to this page.
-  if (!currentVendor || currentVendor.level !== 'super') {
+  // Only super_admin users have access to this page.
+  if (!user || user.role !== 'super_admin') {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
-        <h1 className="text-red-600 text-xl">Access Denied: Super Vendor permissions required</h1>
+        <h1 className="text-red-600 text-xl">Access Denied: Super Admin permissions required</h1>
       </div>
     );
   }
@@ -109,7 +109,7 @@ export default function SuperDashboard() {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Super Vendor Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage your vendor hierarchy and access control policies.
         </p>
@@ -205,11 +205,11 @@ export default function SuperDashboard() {
                   <div className="ml-4">
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-                      onClick={() => navigate('/vendors')}
+                      className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      onClick={() => navigate(level.path)}
                     >
                       Manage
-                      <ChevronRight className="ml-2 h-4 w-4" />
+                      <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                 </div>

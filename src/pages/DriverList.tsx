@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, Plus, Search, User, FileText, Truck, AlertCircle } from 'lucide-react';
 import type { Driver, DriverOnboardingStatus } from '../types/vendor';
 import { useDriverStore } from '../stores/driverStore';
 import { AddDriverModal } from '../components/AddDriverModal';
 import { ManageDriverModal } from '../components/ManageDriverModal';
+import * as vendorQueries from '../db/queries/vendors';
 
 export default function DriverList() {
   const { 
@@ -17,6 +18,27 @@ export default function DriverList() {
   const [filterStatus, setFilterStatus] = useState<'all' | DriverOnboardingStatus>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [selectedVendorId, setSelectedVendorId] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch vendors on component mount
+  useEffect(() => {
+    async function fetchVendors() {
+      try {
+        const allVendors = await vendorQueries.getAllVendors();
+        if (allVendors && allVendors.length > 0) {
+          setSelectedVendorId(allVendors[0].id); // Set the first vendor as default
+        } else {
+          setError('No vendors found. Please create a vendor first before adding drivers.');
+        }
+      } catch (err) {
+        console.error('Failed to fetch vendors:', err);
+        setError('Failed to fetch vendors. Please try again later.');
+      }
+    }
+    
+    fetchVendors();
+  }, []);
 
   // Filter drivers based on search term and status
   const filteredDrivers = drivers.filter(driver => {
@@ -57,19 +79,33 @@ export default function DriverList() {
 
   const handleAddDriver = async (driverData: Omit<Driver, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'onboardingStatus' | 'documents'>) => {
     try {
+      setError(null);
+      
+      if (!selectedVendorId) {
+        setError('No vendor selected. Please select a vendor first.');
+        return;
+      }
+      
       await addDriver({
         ...driverData,
-        documents: {}  // Add empty documents object
+        vendorId: selectedVendorId // Use the selected vendor ID
       });
       setShowUploadModal(false);
     } catch (error) {
       console.error('Failed to add driver:', error);
-      // You might want to show an error toast/notification here
+      setError(error instanceof Error ? error.message : 'Failed to add driver');
     }
   };
 
   return (
     <div>
+      {/* Error message */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+          {error}
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
@@ -234,7 +270,7 @@ export default function DriverList() {
         <AddDriverModal 
           onClose={() => setShowUploadModal(false)} 
           onAdd={handleAddDriver}
-          vendorId="your-vendor-id" // Replace with actual vendor ID from your auth context or props
+          vendorId={selectedVendorId}
         />
       )}
 

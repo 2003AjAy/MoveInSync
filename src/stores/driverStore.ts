@@ -122,9 +122,12 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
         throw new Error('Driver with this license number already exists');
       }
 
+      // Generate a unique ID for the new driver
+      const uniqueId = `D${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
+      
       const newDriver = {
         ...driverData,
-        id: `D${Math.random().toString(36).substr(2, 9)}`,
+        id: uniqueId,
         status: 'inactive' as const,
         onboardingStatus: 'pending' as const,
         createdAt: new Date().toISOString(),
@@ -137,29 +140,57 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
         },
       };
       
-      const createdDrivers = await driverQueries.createDriver({
+      console.log('Creating driver with data:', {
         ...newDriver,
         createdAt: new Date(),
         updatedAt: new Date(),
         email: newDriver.email || null,
         address: newDriver.address || null,
         vehicleId: newDriver.vehicleId || null,
+        documents: {},
       });
       
-      if (!createdDrivers || createdDrivers.length === 0) {
-        throw new Error('Failed to create driver');
+      try {
+        const createdDrivers = await driverQueries.createDriver({
+          ...newDriver,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          email: newDriver.email || null,
+          address: newDriver.address || null,
+          vehicleId: newDriver.vehicleId || null,
+          documents: {},
+        });
+        
+        if (!createdDrivers || createdDrivers.length === 0) {
+          throw new Error('Failed to create driver: No driver returned from database');
+        }
+        
+        const appDriver = dbDriverToAppDriver(createdDrivers[0]);
+        
+        set(state => ({
+          drivers: [...state.drivers, appDriver],
+          loading: false,
+        }));
+        
+        return appDriver;
+      } catch (error) {
+        console.error('Error in database operation:', error);
+        
+        // Handle foreign key constraint violation
+        if (error instanceof Error && error.message.includes('violates foreign key constraint')) {
+          throw new Error(`Invalid vendor ID: The specified vendor does not exist. Please select a valid vendor.`);
+        }
+        
+        // Handle other specific error types
+        if (error instanceof Error && error.message.includes('Vendor with ID')) {
+          throw error; // Pass through the specific vendor error
+        }
+        
+        // Re-throw the original error
+        throw error;
       }
-      
-      const appDriver = dbDriverToAppDriver(createdDrivers[0]);
-      
-      // Update the local state
-      set(state => ({
-        drivers: [...state.drivers, appDriver],
-        loading: false,
-      }));
-      
-      return appDriver;
     } catch (error) {
+      console.error('Error creating driver:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to add driver', loading: false });
       throw error;
     }
@@ -212,6 +243,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
       
       return appDriver;
     } catch (error) {
+      console.error('Error updating driver:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to update driver', loading: false });
       throw error;
     }
@@ -229,6 +261,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
         loading: false,
       }));
     } catch (error) {
+      console.error('Error deleting driver:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to delete driver', loading: false });
       throw error;
     }
@@ -261,6 +294,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
       await get().fetchDrivers();
       set({ loading: false });
     } catch (error) {
+      console.error('Error uploading document:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to upload document', loading: false });
       throw error;
     }
@@ -276,6 +310,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
       await get().fetchDrivers();
       set({ loading: false });
     } catch (error) {
+      console.error('Error verifying document:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to verify document', loading: false });
       throw error;
     }
@@ -302,6 +337,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
       await get().fetchDrivers();
       set({ loading: false });
     } catch (error) {
+      console.error('Error assigning vehicle:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to assign vehicle', loading: false });
       throw error;
     }
@@ -317,6 +353,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
       await get().fetchDrivers();
       set({ loading: false });
     } catch (error) {
+      console.error('Error unassigning vehicle:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to unassign vehicle', loading: false });
       throw error;
     }
@@ -332,6 +369,7 @@ export const useDriverStore = create<DriverStore>((set, get) => ({
       await get().fetchDrivers();
       set({ loading: false });
     } catch (error) {
+      console.error('Error updating onboarding status:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to update onboarding status', loading: false });
       throw error;
     }

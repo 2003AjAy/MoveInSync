@@ -53,6 +53,9 @@ export interface DriverDocument {
   comments?: string;
 }
 
+export type DriverDocumentType = 'license' | 'permit' | 'pollution_certificate' |'other';
+
+
 export interface Driver {
   id: string;
   name: string;

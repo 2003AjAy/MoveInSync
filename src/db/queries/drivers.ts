@@ -1,6 +1,7 @@
 import { db } from '../index';
 import { drivers, type InsertDriver } from '../schema';
-import { eq } from 'drizzle-orm';
+import { eq, and, or, like } from 'drizzle-orm';
+import * as vendorQueries from './vendors';
 import type { DriverDocumentStatus, DriverOnboardingStatus } from '../../types/vendor';
 
 // Get all drivers
@@ -53,7 +54,32 @@ export async function getCompliantDrivers() {
 
 // Create a new driver
 export async function createDriver(driver: InsertDriver) {
-  return await db.insert(drivers).values(driver).returning();
+  try {
+    console.log('Creating driver in database:', driver);
+    
+    // Make sure documents is properly initialized
+    if (!driver.documents) {
+      driver.documents = {};
+    }
+    
+    // Ensure all required fields are present
+    if (!driver.name || !driver.phone || !driver.licenseNumber || !driver.vendorId) {
+      throw new Error('Missing required driver fields');
+    }
+    
+    // Check if vendor exists before creating driver
+    const vendor = await vendorQueries.getVendorById(driver.vendorId);
+    if (!vendor) {
+      throw new Error(`Vendor with ID ${driver.vendorId} does not exist. Cannot create driver with non-existent vendor.`);
+    }
+    
+    const result = await db.insert(drivers).values(driver).returning();
+    console.log('Driver creation result:', result);
+    return result;
+  } catch (error) {
+    console.error('Database error creating driver:', error);
+    throw error;
+  }
 }
 
 // Update a driver

@@ -1,10 +1,16 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout';
-import Login from './pages/auth/Login';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import SignInForm from './components/auth/SignInForm';
+import SignUpForm from './components/auth/SignUpForm';
+import Unauthorized from './pages/Unauthorized';
 import RoleBasedDashboard from './components/RoleBasedDashboard';
+import SuperDashboard from './pages/dashboards/SuperDashboard';
+import RegionalDashboard from './pages/dashboards/RegionalDashboard';
+import CityDashboard from './pages/dashboards/CityDashboard';
+import LocalDashboard from './pages/dashboards/LocalDashboard';
+import AuthenticatedLayout from './components/layout/AuthenticatedLayout';
 import VendorList from './pages/VendorList';
 import DriverList from './pages/DriverList';
 import VehicleList from './pages/VehicleList';
@@ -73,31 +79,117 @@ function App() {
   
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <Router basename="/VCDOS">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-
+          <Route path="/signin" element={<SignInForm />} />
+          <Route path="/signup" element={<SignUpForm />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          
           {/* Protected Routes */}
-          <Route
-            path="/"
+          <Route 
+            path="/dashboard" 
             element={
               <ProtectedRoute>
-                <Layout />
+                <AuthenticatedLayout>
+                  <RoleBasedDashboard />
+                </AuthenticatedLayout>
               </ProtectedRoute>
-            }
-          >
-            <Route index element={<RoleBasedDashboard />} />
-            <Route path="/hierarchy" element={<OrgChart />} />
-            <Route path="vendors" element={<VendorList />} />
-            <Route path="drivers" element={<DriverList />} />
-            <Route path="vehicles" element={<VehicleList />} />
-          </Route>
-
-          {/* Catch all route - redirect to dashboard */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+            } 
+          />
+          
+          {/* Role-specific dashboards */}
+          <Route 
+            path="/super-admin" 
+            element={
+              <ProtectedRoute requiredRole="super_admin">
+                <AuthenticatedLayout>
+                  <SuperDashboard />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/regional-admin" 
+            element={
+              <ProtectedRoute requiredRole="regional_admin">
+                <AuthenticatedLayout>
+                  <RegionalDashboard />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/city-admin" 
+            element={
+              <ProtectedRoute requiredRole="city_admin">
+                <AuthenticatedLayout>
+                  <CityDashboard />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/local-admin" 
+            element={
+              <ProtectedRoute requiredRole="local_admin">
+                <AuthenticatedLayout>
+                  <LocalDashboard />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Legacy routes */}
+          <Route 
+            path="/vendors" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <VendorList />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/drivers" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <DriverList />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vehicles" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <VehicleList />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/hierarchy" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <OrgChart />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Redirect root to dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   );
 }

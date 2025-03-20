@@ -61,7 +61,7 @@ function VendorNode({ vendor, level, onVendorSelect, selectedVendorId }: VendorN
       </div>
       {hasChildren && isExpanded && (
         <div>
-          {vendor.children.map((child) => (
+          {vendor.children?.map((child) => (
             <VendorNode
               key={child.id}
               vendor={child}

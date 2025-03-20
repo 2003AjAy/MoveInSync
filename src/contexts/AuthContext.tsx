@@ -1,97 +1,113 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Vendor, Permission } from '../types/vendor';
-import { LoadingScreen } from '../components/LoadingScreen';
+import type { SignInData, SignUpData } from '../services/authService';
+import { authService } from '../services/authService';
+import { UserRole } from '../db/schema/auth';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+}
 
 interface AuthContextType {
-  currentVendor: Vendor | null;
-  hasPermission: (permission: Permission) => boolean;
-  login: (vendor: Vendor) => void;
-  logout: () => void;
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  hasRole: (role: UserRole) => boolean;
+  signIn: (data: SignInData) => Promise<void>;
+  signUp: (data: SignUpData) => Promise<void>;
+  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // const mockVendors: Vendor[] = [
-  //   {
-  //     id: '1',
-  //     name: 'Super Vendor HQ',
-  //     location: 'Global HQ',
-  //     permissions: ['all'],
-  //     level: 'super',
-  //     email: 'super@vendor.com',
-  //     phone: '123-456-7890',
-  //     status: 'active',
-  //     createdAt: new Date().toISOString()
-  //   },
-  //   {
-  //     id: '2',
-  //     name: 'North Region Vendor',
-  //     location: 'North Region',
-  //     permissions: ['manage_drivers', 'manage_vehicles', 'view_reports'],
-  //     level: 'regional',
-  //     email: 'north@vendor.com',
-  //     phone: '123-456-7891',
-  //     status: 'active',
-  //     createdAt: new Date().toISOString()
-  //   },
-  //   {
-  //     id: '3',
-  //     name: 'City A Vendor',
-  //     location: 'City A',
-  //     permissions: ['manage_drivers', 'view_reports'],
-  //     level: 'city',
-  //     email: 'citya@vendor.com',
-  //     phone: '123-456-7892',
-  //     status: 'active',
-  //     createdAt: new Date().toISOString()
-  //   }
-  // ];
-
-  const [currentVendor, setCurrentVendor] = useState<Vendor | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate checking for existing session
-    const checkAuth = async () => {
+    const savedToken = localStorage.getItem('token');
+    if (savedToken) {
       try {
-        // In a real app, you would check for an existing session here
-        const savedVendor = localStorage.getItem('currentVendor');
-        if (savedVendor) {
-          setCurrentVendor(JSON.parse(savedVendor));
+        const userData = authService.verifyToken(savedToken);
+        if (userData) {
+          // In a real app, you would fetch the full user data from the server
+          // For now, we'll use the data from the token
+          setUser({
+            id: userData.id,
+            role: userData.role as UserRole,
+            email: userData.email || '',
+            name: userData.name || '',
+          });
+        } else {
+          localStorage.removeItem('token');
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('Error verifying token:', error);
+        localStorage.removeItem('token');
       } finally {
         setIsLoading(false);
       }
-    };
-
-    checkAuth();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
-  const hasPermission = (permission: Permission) => {
-    if (!currentVendor) return false;
-    if (currentVendor.permissions.includes('all')) return true;
-    return currentVendor.permissions.includes(permission);
+  const hasRole = (role: UserRole) => {
+    if (!user) return false;
+    
+    // Define the role hierarchy
+    const roleHierarchy: Record<UserRole, UserRole[]> = {
+      'super_admin': ['super_admin'],
+      'regional_admin': ['super_admin', 'regional_admin'],
+      'city_admin': ['super_admin', 'regional_admin', 'city_admin'],
+      'local_admin': ['super_admin', 'regional_admin', 'city_admin', 'local_admin'],
+    };
+    
+    // Check if user's role is in the permitted roles for the required access level
+    return roleHierarchy[role].includes(user.role);
   };
 
-  const login = (vendor: Vendor) => {
-    setCurrentVendor(vendor);
-    localStorage.setItem('currentVendor', JSON.stringify(vendor));
+  const signIn = async (data: SignInData) => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signIn(data);
+      setUser(result.user as User);
+      localStorage.setItem('token', result.token);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    setCurrentVendor(null);
-    localStorage.removeItem('currentVendor');
+  const signUp = async (data: SignUpData) => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signUp(data);
+      setUser(result.user as User);
+      localStorage.setItem('token', result.token);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  const signOut = () => {
+    setUser(null);
+    localStorage.removeItem('token');
+  };
 
   return (
-    <AuthContext.Provider value={{ currentVendor, hasPermission, login, logout }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        isAuthenticated: !!user,
+        isLoading,
+        hasRole, 
+        signIn, 
+        signUp, 
+        signOut
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

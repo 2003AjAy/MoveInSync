@@ -3,6 +3,8 @@ import { Users, Car, Building2, AlertTriangle, Plus, Search, ChevronDown } from 
 import { Tree, TreeNode } from 'react-organizational-chart';
 import type { Vendor } from '../types/vendor';
 import { Dialog } from '@headlessui/react';
+import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
+import { useAuth } from '../contexts/AuthContext';
 
 const stats = [
   { name: 'Total Vendors', value: '24', icon: Building2 },
@@ -233,120 +235,118 @@ function renderVendorTree(
   );
 }
 
-export default function Dashboard() {
+function Dashboard() {
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedParentVendor, setSelectedParentVendor] = useState<Vendor | undefined>();
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | undefined>(undefined);
 
   const handleEditVendor = (vendor: Vendor) => {
-    // Handle vendor editing
-    console.log('Edit vendor:', vendor);
+    // Handle edit vendor
+    console.log('Edit vendor', vendor);
   };
 
-  const handleAddChild = (parentVendor: Vendor) => {
-    setSelectedParentVendor(parentVendor);
+  const handleAddChildVendor = (vendor: Vendor) => {
+    setSelectedVendor(vendor);
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddSuperVendor = () => {
+    setSelectedVendor(undefined);
     setIsAddModalOpen(true);
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Super Admin Dashboard</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Manage your vendor hierarchy and monitor system performance
-        </p>
-      </div>
-      
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.name}
-              className="relative overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:px-6 sm:py-6"
-            >
-              <dt>
-                <div className="absolute rounded-md bg-indigo-500 p-3">
-                  <Icon className="h-6 w-6 text-white" aria-hidden="true" />
-                </div>
-                <p className="ml-16 truncate text-sm font-medium text-gray-500">
-                  {stat.name}
-                </p>
-              </dt>
-              <dd className="ml-16 flex items-baseline">
-                <p className="text-2xl font-semibold text-gray-900">
-                  {stat.value}
-                </p>
-              </dd>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-8">
-        <div className="sm:flex sm:items-center mb-6">
-          <div className="sm:flex-auto">
-            <h2 className="text-lg font-medium text-gray-900">Vendor Hierarchy</h2>
-            <p className="mt-2 text-sm text-gray-700">
-              View and manage your vendor organization structure
+    <AuthenticatedLayout>
+      <div className="space-y-6">
+        <div className="md:flex md:items-center md:justify-between">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Welcome, {user?.name}
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Manage your vendor hierarchy and operations from this dashboard
             </p>
           </div>
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <div className="mt-4 flex md:ml-4 md:mt-0">
             <button
-              onClick={() => {
-                setSelectedParentVendor(undefined);
-                setIsAddModalOpen(true);
-              }}
-              className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+              type="button"
+              onClick={handleAddSuperVendor}
+              className="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="-ml-0.5 mr-1.5 h-5 w-5" />
               Add Super Vendor
             </button>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="overflow-x-auto">
-            <Tree
-              lineWidth="2px"
-              lineColor="#E5E7EB"
-              lineBorderRadius="6px"
-              label={<div className="mb-4">Organization Structure</div>}
-            >
-              {mockVendors.map((vendor) =>
-                renderVendorTree(vendor, handleEditVendor, handleAddChild)
-              )}
-            </Tree>
+        <div>
+          <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((item) => (
+              <div
+                key={item.name}
+                className="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6"
+              >
+                <dt>
+                  <div className="absolute rounded-md bg-indigo-500 p-3">
+                    <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                  </div>
+                  <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
+                </dt>
+                <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
+                  <p className="text-2xl font-semibold text-gray-900">{item.value}</p>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+            <div>
+              <h3 className="text-lg font-medium leading-6 text-gray-900">Vendor Hierarchy</h3>
+              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                View and manage your vendor structure
+              </p>
+            </div>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Search vendors..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="border-t border-gray-200 px-4 py-5 sm:p-6 overflow-auto" style={{ maxHeight: '600px' }}>
+            <div className="flex justify-center">
+              {mockVendors.map((vendor) => (
+                <Tree
+                  key={vendor.id}
+                  lineWidth="2px"
+                  lineColor="#d1d5db"
+                  lineBorderRadius="10px"
+                  label={<VendorNode vendor={vendor} onEdit={handleEditVendor} onAddChild={handleAddChildVendor} />}
+                >
+                  {renderVendorTree(vendor, handleEditVendor, handleAddChildVendor)}
+                </Tree>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <AddVendorModal
         isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setSelectedParentVendor(undefined);
-        }}
-        parentVendor={selectedParentVendor}
+        onClose={() => setIsAddModalOpen(false)}
+        parentVendor={selectedVendor}
       />
-
-      <div className="mt-8">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
-        <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="p-6">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
-                <Users className="h-6 w-6 text-gray-400" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-gray-500">
-                  New driver onboarded by Regional Vendor (Mumbai)
-                </p>
-                <p className="text-xs text-gray-400">2 minutes ago</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </AuthenticatedLayout>
   );
 }
+
+export default Dashboard;

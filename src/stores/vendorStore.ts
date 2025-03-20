@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import type { Vendor, VendorLevel } from '../types/vendor';
+import type { Vendor } from '../types/vendor';
 import * as vendorQueries from '../db/queries/vendors';
-import { Vendor as DBVendor } from '../db/schema';
 
 interface VendorStore {
   vendors: Vendor[];
@@ -20,18 +19,6 @@ interface VendorStore {
   buildHierarchy: () => Promise<void>;
 }
 
-// Convert database vendor format to application vendor format
-function dbVendorToAppVendor(dbVendor: DBVendor): Vendor {
-  return {
-    ...dbVendor,
-    level: dbVendor.level as VendorLevel,
-    parentId: dbVendor.parentId || undefined, // Convert null to undefined
-    createdAt: dbVendor.createdAt.toISOString(),
-    // Ensure children is always an array, even if we'll populate it later
-    children: [],
-  };
-}
-
 export const useVendorStore = create<VendorStore>((set, get) => ({
   vendors: [],
   loading: false,
@@ -45,10 +32,7 @@ export const useVendorStore = create<VendorStore>((set, get) => ({
       set({ vendors: hierarchy, loading: false });
     } catch (error) {
       console.error('Error fetching vendors:', error);
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to fetch vendors',
-        loading: false 
-      });
+      set({ error: 'Failed to fetch vendors', loading: false });
     }
   },
   
@@ -56,37 +40,58 @@ export const useVendorStore = create<VendorStore>((set, get) => ({
   addVendor: async (newVendor) => {
     set({ loading: true, error: null });
     try {
-      const vendor = {
+      // Add the vendor to the database
+      const addedVendor = await vendorQueries.createVendor({
         ...newVendor,
-        id: `V${Math.random().toString(36).substr(2, 9)}`, // Generate ID client-side
-        createdAt: new Date().toISOString(),
+        id: crypto.randomUUID(), // Generate an ID for the new vendor
         status: 'active',
-        metadata: {
-          totalDrivers: 0,
-          totalVehicles: 0,
-          activeVehicles: 0,
-          pendingApprovals: 0
-        }
-      };
+        metadata: {},
+        createdAt: new Date()
+      });
       
-      // Convert undefined parentId to null for the database
-      const dbVendor = {
-        ...vendor,
-        createdAt: new Date(), // Convert to Date for database
-        parentId: vendor.parentId || null
-      };
+      if (!addedVendor || !addedVendor[0]) {
+        throw new Error('Failed to add vendor');
+      }
       
-      await vendorQueries.createVendor(dbVendor);
+      // Update the local state
+      const { vendors } = get();
       
-      // Refresh the vendor hierarchy after adding a new vendor
-      await get().buildHierarchy();
-      set({ loading: false });
+      // If this is a child vendor, add it to its parent's children
+      if (newVendor.parentId) {
+        const updatedVendors = [...vendors];
+        const addToParent = (vendors: Vendor[], parentId: string, newVendor: Vendor) => {
+          for (let i = 0; i < vendors.length; i++) {
+            if (vendors[i].id === parentId) {
+              // Initialize children array if it doesn't exist
+              if (!vendors[i].children) {
+                vendors[i].children = [];
+              }
+              // Now TypeScript knows children is defined
+              vendors[i].children!.push(newVendor);
+              return true;
+            }
+            // Check if children exist and has length before recursive call
+            if ((vendors[i].children || []).length > 0) {
+              if (addToParent(vendors[i].children!, parentId, newVendor)) {
+                return true;
+              }
+            }
+            
+          }
+          return false;
+        };
+        
+        // Cast the added vendor to the correct type
+        const vendorToAdd = addedVendor[0] as unknown as Vendor;
+        addToParent(updatedVendors, newVendor.parentId, vendorToAdd);
+        set({ vendors: updatedVendors, loading: false });
+      } else {
+        // If it's a top-level vendor, add it to the root
+        set({ vendors: [...vendors, addedVendor[0] as unknown as Vendor], loading: false });
+      }
     } catch (error) {
       console.error('Error adding vendor:', error);
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to add vendor',
-        loading: false 
-      });
+      set({ error: 'Failed to add vendor', loading: false });
     }
   },
   
@@ -94,33 +99,48 @@ export const useVendorStore = create<VendorStore>((set, get) => ({
   updateVendor: async (updatedVendor) => {
     set({ loading: true, error: null });
     try {
-      // Prepare DB updates with Date conversion
-      const dbUpdates: any = { ...updatedVendor };
+      // Convert string date to Date object for the database
+      const vendorForDb = {
+        ...updatedVendor,
+        createdAt: updatedVendor.createdAt ? new Date(updatedVendor.createdAt) : undefined
+      };
       
-      // Don't include these fields in the DB update
-      delete dbUpdates.children;
+      // Update the vendor in the database - pass only the id and the data separately
+      const result = await vendorQueries.updateVendor(updatedVendor.id, vendorForDb);
       
-      // Convert undefined to null for the database
-      if ('parentId' in dbUpdates) {
-        dbUpdates.parentId = dbUpdates.parentId || null;
+      if (!result || !result[0]) {
+        throw new Error('Failed to update vendor');
       }
       
-      // Convert string date to Date object if it exists
-      if (updatedVendor.createdAt) {
-        dbUpdates.createdAt = new Date(updatedVendor.createdAt);
-      }
+      // Update the local state
+      const { vendors } = get();
+      const updatedVendors = [...vendors];
       
-      await vendorQueries.updateVendor(updatedVendor.id, dbUpdates);
+      const updateInTree = (vendors: Vendor[], updatedVendor: Vendor): boolean => {
+        for (let i = 0; i < vendors.length; i++) {
+          if (vendors[i].id === updatedVendor.id) {
+            // Keep the children if they exist
+            const children = vendors[i].children || [];
+            vendors[i] = { ...updatedVendor, children };
+            return true;
+          }
+          
+          // If this vendor has children, recursively update them
+          if (vendors[i].children && vendors[i].children.length > 0) {
+            // Use non-null assertion since we've checked for existence
+            if (updateInTree(vendors[i].children!, updatedVendor)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      };
       
-      // Refresh the vendor hierarchy after updating
-      await get().buildHierarchy();
-      set({ loading: false });
+      updateInTree(updatedVendors, result[0] as unknown as Vendor);
+      set({ vendors: updatedVendors, loading: false });
     } catch (error) {
       console.error('Error updating vendor:', error);
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to update vendor',
-        loading: false 
-      });
+      set({ error: 'Failed to update vendor', loading: false });
     }
   },
   
@@ -128,17 +148,37 @@ export const useVendorStore = create<VendorStore>((set, get) => ({
   deleteVendor: async (id) => {
     set({ loading: true, error: null });
     try {
+      // Delete the vendor from the database
       await vendorQueries.deleteVendor(id);
       
-      // Refresh the vendor hierarchy after deleting
-      await get().buildHierarchy();
-      set({ loading: false });
+      // Update the local state
+      const { vendors } = get();
+      const updatedVendors = [...vendors];
+      
+      // Find and remove the vendor from the hierarchy
+      const removeFromTree = (vendors: Vendor[], id: string): boolean => {
+        for (let i = 0; i < vendors.length; i++) {
+          if (vendors[i].id === id) {
+            vendors.splice(i, 1);
+            return true;
+          }
+          
+          // If this vendor has children, recursively check them
+          if (vendors[i].children && vendors[i].children.length > 0) {
+            // Use non-null assertion since we've checked for existence
+            if (removeFromTree(vendors[i].children!, id)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      };
+      
+      removeFromTree(updatedVendors, id);
+      set({ vendors: updatedVendors, loading: false });
     } catch (error) {
       console.error('Error deleting vendor:', error);
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to delete vendor',
-        loading: false 
-      });
+      set({ error: 'Failed to delete vendor', loading: false });
     }
   },
   
@@ -149,43 +189,58 @@ export const useVendorStore = create<VendorStore>((set, get) => ({
       const hierarchy = await vendorQueries.buildVendorHierarchy();
       set({ vendors: hierarchy, loading: false });
     } catch (error) {
-      console.error('Error building vendor hierarchy:', error);
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to build vendor hierarchy',
-        loading: false 
-      });
+      console.error('Error building hierarchy:', error);
+      set({ error: 'Failed to build vendor hierarchy', loading: false });
     }
   },
   
   // Helper method to get a vendor by ID
   getVendorById: (id) => {
-    // Helper function to search in the vendor tree
-    const findVendor = (vendors: Vendor[], vendorId: string): Vendor | undefined => {
+    const { vendors } = get();
+    
+    // Helper function to find a vendor recursively
+    const findVendor = (vendors: Vendor[], id: string): Vendor | undefined => {
       for (const vendor of vendors) {
-        if (vendor.id === vendorId) {
+        if (vendor.id === id) {
           return vendor;
         }
-        if (vendor.children) {
-          const found = findVendor(vendor.children, vendorId);
+        // If the vendor has children, search through them
+        if (vendor.children && vendor.children.length > 0) {
+          const found = findVendor(vendor.children, id);
           if (found) return found;
         }
       }
       return undefined;
     };
     
-    return findVendor(get().vendors, id);
+    return findVendor(vendors, id);
   },
   
   // Helper method to get vendors by parent ID
   getVendorsByParentId: (parentId) => {
-    const findVendorsByParentId = (vendors: Vendor[], parentVendorId: string | null): Vendor[] => {
-      return vendors.filter(v => {
-        // Handle both undefined and null comparison
-        if (parentVendorId === null) return !v.parentId;
-        return v.parentId === parentVendorId;
-      });
+    const { vendors } = get();
+    
+    if (parentId === null) {
+      // Return top-level vendors
+      return vendors.filter(v => !v.parentId);
+    }
+    
+    // Helper function to find children of a vendor
+    const findChildren = (vendors: Vendor[], parentId: string): Vendor[] => {
+      for (const vendor of vendors) {
+        if (vendor.id === parentId) {
+          return vendor.children || [];
+        }
+        
+        // If the vendor has children, search through them
+        if (vendor.children && vendor.children.length > 0) {
+          const found = findChildren(vendor.children, parentId);
+          if (found.length > 0) return found;
+        }
+      }
+      return [];
     };
     
-    return findVendorsByParentId(get().vendors, parentId);
+    return findChildren(vendors, parentId);
   }
 }));
