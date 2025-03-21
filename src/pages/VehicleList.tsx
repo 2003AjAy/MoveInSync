@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { 
-
   Plus, 
   Search, 
   FileText, 
@@ -14,21 +13,23 @@ import { useVehicleStore } from '../stores/vehicleStore';
 import { useDriverStore } from '../stores/driverStore';
 import { AddVehicleModal } from '../components/AddVehicleModal';
 import { ManageVehicleModal } from '../components/ManageVehicleModal';
+import { useVendorStore } from '../stores/vendorStore';
 
 export default function VehicleList() {
+  // Get vendors from store
+  const { vendors } = useVendorStore();
+
   const { 
     vehicles,
     loading: vehicleLoading,
     addVehicle,
     updateVehicle,
     deleteVehicle,
-    checkVehicleCompliance,
     getNonCompliantVehicles,
     verifyDocument
   } = useVehicleStore();
 
   const {
-    drivers,
     getActiveDrivers,
     getCompliantDrivers
   } = useDriverStore();
@@ -39,6 +40,16 @@ export default function VehicleList() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [complianceWarnings, setComplianceWarnings] = useState<Record<string, string[]>>({});
   const [documentVerificationLoading, setDocumentVerificationLoading] = useState<string | null>(null);
+  const [currentVendorId, setCurrentVendorId] = useState<string | null>(null);
+
+  // Load current vendor ID on component mount
+  useEffect(() => {
+    // In a production app, this would come directly from the user object
+    // For now, we'll use the first vendor if available
+    if (vendors.length > 0) {
+      setCurrentVendorId(vendors[0].id);
+    }
+  }, [vendors]);
 
   // Get non-compliant vehicles for highlighting
   const nonCompliantVehicles = getNonCompliantVehicles();
@@ -353,7 +364,7 @@ export default function VehicleList() {
         <AddVehicleModal
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddVehicle}
-          vendorId="your-vendor-id"
+          vendorId={currentVendorId || ''}
           availableDrivers={getCompliantDrivers()}
         />
       )}
