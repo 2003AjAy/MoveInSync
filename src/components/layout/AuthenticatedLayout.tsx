@@ -14,7 +14,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
   const handleSignOut = () => {
     signOut();
-    navigate('/VCDOS/signin');
+    navigate('/signin');
   };
 
   if (isLoading) {
@@ -33,27 +33,57 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <a
-                  href="/VCDOS/dashboard"
+                  href="/dashboard"
                   className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate('/VCDOS/dashboard');
+                    navigate('/dashboard');
                   }}
                 >
                   Dashboard
                 </a>
-                {user?.role === 'super_admin' && (
+                <a
+                  href="/vendors"
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/vendors');
+                  }}
+                >
+                  Vendors
+                </a>
+                <a
+                  href="/vehicles"
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/vehicles');
+                  }}
+                >
+                  Vehicles
+                </a>
+                <a
+                  href="/drivers"
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/drivers');
+                  }}
+                >
+                  Drivers
+                </a>
+                {/* {user?.role === 'super_admin' && (
                   <a
-                    href="/VCDOS/admin"
+                    href="/admin"
                     className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate('/VCDOS/admin');
+                      navigate('/admin');
                     }}
                   >
                     Admin Panel
                   </a>
-                )}
+                )} */}
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
@@ -102,7 +132,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                       id="user-menu-item-0"
                       onClick={(e) => {
                         e.preventDefault();
-                        navigate('/VCDOS/profile');
+                        navigate('/profile');
                         setIsMenuOpen(false);
                       }}
                     >
@@ -159,23 +189,56 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           <div className="sm:hidden" id="mobile-menu">
             <div className="pt-2 pb-3 space-y-1">
               <a
-                href="/VCDOS/dashboard"
+                href="/dashboard"
                 className="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate('/VCDOS/dashboard');
+                  navigate('/dashboard');
                   setIsMenuOpen(false);
                 }}
               >
                 Dashboard
               </a>
+              <a
+                href="/vendors"
+                className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/vendors');
+                  setIsMenuOpen(false);
+                }}
+              >
+                Vendors
+              </a>
+              <a
+                href="/vehicles"
+                className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/vehicles');
+                  setIsMenuOpen(false);
+                }}
+              >
+                Vehicles
+              </a>
+              <a
+                href="/drivers"
+                className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/drivers');
+                  setIsMenuOpen(false);
+                }}
+              >
+                Drivers
+              </a>
               {user?.role === 'super_admin' && (
                 <a
-                  href="/VCDOS/admin"
+                  href="/admin"
                   className="block px-4 py-2 text-sm text-gray-700"
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate('/VCDOS/admin');
+                    navigate('/admin');
                     setIsMenuOpen(false);
                   }}
                 >
@@ -206,7 +269,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                   className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate('/VCDOS/profile');
+                    navigate('/profile');
                     setIsMenuOpen(false);
                   }}
                 >
@@ -229,8 +292,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       </nav>
 
       {/* Main content */}
-      <main>
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">{children}</div>
+      <main className="py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {children}
+        </div>
       </main>
     </div>
   );
