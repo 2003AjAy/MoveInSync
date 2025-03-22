@@ -7,11 +7,22 @@ import OrgChart from '../../components/OrgChart';
 import { useVendorStore } from '../../stores/vendorStore';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useDriverStore } from '../../stores/driverStore';
+import { useVehicleStore } from '../../stores/vehicleStore';
 
 export default function SuperDashboard() {
   const { user } = useAuth();
   const { vendors } = useVendorStore();
+  const { drivers, fetchDrivers } = useDriverStore();
+  const { vehicles, fetchVehicles } = useVehicleStore();
   const navigate = useNavigate();
+  const [totalStats, setTotalStats] = useState({
+    totalDrivers: 0,
+    totalVehicles: 0,
+    activeVehicles: 0,
+    pendingApprovals: 0,
+  });
   
   // Only super_admin users have access to this page.
   if (!user || user.role !== 'super_admin') {
@@ -35,27 +46,62 @@ export default function SuperDashboard() {
 
   // Calculate total stats from vendor hierarchy
   const calculateTotalStats = (vendor: Vendor) => {
-    let totals = {
-      totalDrivers: vendor.metadata?.totalDrivers || 0,
-      totalVehicles: vendor.metadata?.totalVehicles || 0,
-      activeVehicles: vendor.metadata?.activeVehicles || 0,
-      pendingApprovals: vendor.metadata?.pendingApprovals || 0,
+    // Get all vendor IDs in the hierarchy
+    const getAllVendorIds = (vendor: Vendor): string[] => {
+      let ids = [vendor.id];
+      if (vendor.children && vendor.children.length > 0) {
+        vendor.children.forEach(child => {
+          ids = [...ids, ...getAllVendorIds(child)];
+        });
+      }
+      return ids;
     };
 
-    if (vendor.children) {
-      vendor.children.forEach(child => {
-        const childStats = calculateTotalStats(child);
-        totals.totalDrivers += childStats.totalDrivers;
-        totals.totalVehicles += childStats.totalVehicles;
-        totals.activeVehicles += childStats.activeVehicles;
-        totals.pendingApprovals += childStats.pendingApprovals;
-      });
-    }
+    const vendorIds = getAllVendorIds(vendor);
+    
+    // Calculate stats based on the actual drivers and vehicles data
+    const totalDrivers = drivers.filter(driver => vendorIds.includes(driver.vendorId)).length;
+    
+    const pendingApprovals = drivers.filter(driver => 
+      vendorIds.includes(driver.vendorId) && 
+      (driver.onboardingStatus === 'pending' || 
+       Object.values(driver.documents).some(doc => doc.status === 'pending'))
+    ).length;
+    
+    const totalVehicles = vehicles.filter(vehicle => vendorIds.includes(vehicle.vendorId)).length;
+    
+    const activeVehicles = vehicles.filter(vehicle => 
+      vendorIds.includes(vehicle.vendorId) && 
+      vehicle.status === 'active'
+    ).length;
 
-    return totals;
+    return {
+      totalDrivers,
+      totalVehicles,
+      activeVehicles,
+      pendingApprovals
+    };
   };
 
-  const totalStats = calculateTotalStats(superVendor);
+  // Fetch data and calculate stats when component mounts
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Make sure we have the latest driver and vehicle data
+        await fetchDrivers();
+        await fetchVehicles();
+        
+        // Calculate stats based on the fetched data
+        const stats = calculateTotalStats(superVendor);
+        setTotalStats(stats);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        message.error('Failed to load dashboard statistics');
+      }
+    };
+
+    loadData();
+  }, [superVendor, fetchDrivers, fetchVehicles]);
 
   // Stats overview section using calculated totals
   const stats = [
@@ -77,12 +123,31 @@ export default function SuperDashboard() {
   ];
 
   // Prepare data for regional performance chart
-  const regionalData = superVendor.children?.map(region => ({
-    name: region.name,
-    drivers: region.metadata?.totalDrivers || 0,
-    vehicles: region.metadata?.totalVehicles || 0,
-    activeVehicles: region.metadata?.activeVehicles || 0,
-  })) || [];
+  const regionalData = superVendor.children?.map(region => {
+    // Calculate actual stats for each region
+    const regionVendorIds = [region.id];
+    if (region.children) {
+      region.children.forEach(city => {
+        regionVendorIds.push(city.id);
+        if (city.children) {
+          city.children.forEach(local => regionVendorIds.push(local.id));
+        }
+      });
+    }
+
+    const regionDrivers = drivers.filter(driver => regionVendorIds.includes(driver.vendorId)).length;
+    const regionVehicles = vehicles.filter(vehicle => regionVendorIds.includes(vehicle.vendorId)).length;
+    const regionActiveVehicles = vehicles.filter(vehicle => 
+      regionVendorIds.includes(vehicle.vendorId) && vehicle.status === 'active'
+    ).length;
+
+    return {
+      name: region.name,
+      drivers: regionDrivers,
+      vehicles: regionVehicles,
+      activeVehicles: regionActiveVehicles,
+    };
+  }) || [];
 
   // Build vendor levels with actual counts and type-safe paths
   const vendorLevels = Object.entries(vendorLevelPermissions).map(([key, value]) => {
