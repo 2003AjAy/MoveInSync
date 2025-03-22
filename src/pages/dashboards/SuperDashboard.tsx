@@ -149,7 +149,7 @@ export default function SuperDashboard() {
     };
   }) || [];
 
-  // Build vendor levels with actual counts and type-safe paths
+  // Map vendor levels to appropriate routes and actions
   const vendorLevels = Object.entries(vendorLevelPermissions).map(([key, value]) => {
     const level = key as VendorLevel;
     const count = level === 'super' ? 1 : 
@@ -160,13 +160,39 @@ export default function SuperDashboard() {
                    acc + (region.children?.reduce((acc2, city) => 
                      acc2 + (city.children?.length ?? 0), 0) ?? 0), 0) ?? 0;
 
+    // Map vendor levels to appropriate routes based on App.tsx routes
+    let path = '';
+    let actionText = 'Manage';
+    
+    switch(level) {
+      case 'super':
+        path = '/super-admin';
+        break;
+      case 'regional':
+        path = '/regional-admin';
+        break;
+      case 'city':
+        path = '/city-admin';
+        break;
+      case 'local':
+        path = '/local-admin';
+        break;
+    }
+    
+    // For vendors management, use the vendors route
+    if (level !== 'super') {
+      path = '/vendors';
+      actionText = 'View Vendors';
+    }
+
     return {
       name: `${level.charAt(0).toUpperCase() + level.slice(1)} Vendors`,
       count: count.toString(),
       icon: Building2,
       permissions: value.defaultPermissions,
       description: value.description,
-      path: `/${level}-vendors`
+      path,
+      actionText
     };
   });
 
@@ -267,7 +293,7 @@ export default function SuperDashboard() {
                       className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                       onClick={() => navigate(level.path)}
                     >
-                      Manage
+                      {level.actionText}
                       <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
