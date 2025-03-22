@@ -11,6 +11,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const { user, signOut, isLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = window.location.pathname;
 
   const handleSignOut = () => {
     signOut();
@@ -34,7 +35,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <a
                   href="/dashboard"
-                  className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  className={`${location.includes('/dashboard') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                   onClick={(e) => {
                     e.preventDefault();
                     navigate('/dashboard');
@@ -44,7 +45,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                 </a>
                 <a
                   href="/vendors"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  className={`${location.includes('/vendors') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                   onClick={(e) => {
                     e.preventDefault();
                     navigate('/vendors');
@@ -54,7 +55,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                 </a>
                 <a
                   href="/vehicles"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  className={`${location.includes('/vehicles') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                   onClick={(e) => {
                     e.preventDefault();
                     navigate('/vehicles');
@@ -64,7 +65,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                 </a>
                 <a
                   href="/drivers"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  className={`${location.includes('/drivers') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                   onClick={(e) => {
                     e.preventDefault();
                     navigate('/drivers');
@@ -190,7 +191,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             <div className="pt-2 pb-3 space-y-1">
               <a
                 href="/dashboard"
-                className="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                className={`${location.includes('/dashboard') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/dashboard');
@@ -201,7 +202,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
               </a>
               <a
                 href="/vendors"
-                className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                className={`${location.includes('/vendors') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/vendors');
@@ -212,7 +213,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
               </a>
               <a
                 href="/vehicles"
-                className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                className={`${location.includes('/vehicles') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/vehicles');
@@ -223,7 +224,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
               </a>
               <a
                 href="/drivers"
-                className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                className={`${location.includes('/drivers') ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/drivers');

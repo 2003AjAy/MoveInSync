@@ -10,7 +10,6 @@ import {
   Layers,
   Lock,
   Network,
-  Shield,
   User,
   Users,
 } from "lucide-react"
@@ -18,10 +17,9 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
 
 export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState("super")
+  const [, setActiveTab] = useState("super")
   const navigate = useNavigate()
 
   return (
@@ -43,14 +41,9 @@ export default function LandingPage() {
             <a href="#demo" className="transition-colors hover:text-primary">
               Demo
             </a>
-            <a href="#documentation" className="transition-colors hover:text-primary">
-              Documentation
-            </a>
+            
           </nav>
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" className="hidden md:flex">
-              GitHub
-            </Button>
             <Button size="sm" onClick={() => navigate("/signin")}>Sign In</Button>
           </div>
         </div>
@@ -78,12 +71,6 @@ export default function LandingPage() {
                   >
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    View on GitHub
                   </Button>
                 </div>
               </div>
@@ -389,19 +376,7 @@ export default function LandingPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="rounded-md border p-4">
-                        <div className="flex items-center gap-4">
-                          <Shield className="h-10 w-10 text-primary" />
-                          <div>
-                            <h3 className="font-medium">Super Admin Access</h3>
-                            <p className="text-sm text-muted-foreground">Email: super@vendor.com</p>
-                            <p className="text-sm text-muted-foreground">Password: Any 6+ characters</p>
-                          </div>
-                          <Button className="ml-auto" size="sm">
-                            Login as Super Admin
-                          </Button>
-                        </div>
-                      </div>
+                      
                       <div className="aspect-video overflow-hidden rounded-md border">
                         <div className="w-full h-full bg-card p-4 flex flex-col">
                           <div className="flex items-center justify-between border-b pb-2">
@@ -458,19 +433,7 @@ export default function LandingPage() {
                       <CardDescription>Manage all vendors, vehicles, and drivers within your region.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="rounded-md border p-4">
-                        <div className="flex items-center gap-4">
-                          <Globe className="h-10 w-10 text-primary" />
-                          <div>
-                            <h3 className="font-medium">Regional Admin Access</h3>
-                            <p className="text-sm text-muted-foreground">Email: north@vendor.com</p>
-                            <p className="text-sm text-muted-foreground">Password: Any 6+ characters</p>
-                          </div>
-                          <Button className="ml-auto" size="sm">
-                            Login as Regional Admin
-                          </Button>
-                        </div>
-                      </div>
+                      
                       <div className="aspect-video overflow-hidden rounded-md border">
                         <div className="w-full h-full bg-card p-4 flex flex-col">
                           <div className="flex items-center justify-between border-b pb-2">
@@ -530,14 +493,7 @@ export default function LandingPage() {
                       <div className="rounded-md border p-4">
                         <div className="flex items-center gap-4">
                           <Layers className="h-10 w-10 text-primary" />
-                          <div>
-                            <h3 className="font-medium">City Admin Access</h3>
-                            <p className="text-sm text-muted-foreground">Email: citya@vendor.com</p>
-                            <p className="text-sm text-muted-foreground">Password: Any 6+ characters</p>
-                          </div>
-                          <Button className="ml-auto" size="sm">
-                            Login as City Admin
-                          </Button>
+                          
                         </div>
                       </div>
                       <div className="aspect-video overflow-hidden rounded-md border">
@@ -599,14 +555,8 @@ export default function LandingPage() {
                       <div className="rounded-md border p-4">
                         <div className="flex items-center gap-4">
                           <Car className="h-10 w-10 text-primary" />
-                          <div>
-                            <h3 className="font-medium">Local Admin Access</h3>
-                            <p className="text-sm text-muted-foreground">Email: local@vendor.com</p>
-                            <p className="text-sm text-muted-foreground">Password: Any 6+ characters</p>
-                          </div>
-                          <Button className="ml-auto" size="sm">
-                            Login as Local Admin
-                          </Button>
+                          
+                          
                         </div>
                       </div>
                       <div className="aspect-video overflow-hidden rounded-md border">
@@ -700,146 +650,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Documentation Section */}
-        <section id="documentation" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
-                  Documentation
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Comprehensive Documentation</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Everything you need to know about the system components and implementation.
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto max-w-4xl mt-12">
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger>Core Components</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-4">
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">VendorHierarchyTree</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Displays the organizational hierarchy of vendors in a tree structure with interactive
-                          expand/collapse nodes.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { VendorHierarchyTree } from '../components/VendorHierarchyTree';`}</code>
-                        </div>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">ManageVehicleModal</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Modal for vehicle management operations including editing, document management, and driver
-                          assignment.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { ManageVehicleModal } from '../components/ManageVehicleModal';`}</code>
-                        </div>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">RoleBasedDashboard</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Renders appropriate dashboard based on vendor level with dynamic dashboard switching.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import RoleBasedDashboard from '../components/RoleBasedDashboard';`}</code>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger>Authentication Components</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-4">
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">AuthProvider</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Manages authentication state and user permissions with role-based access control.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { AuthProvider } from '../contexts/AuthContext';`}</code>
-                        </div>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">ProtectedRoute</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Route protection based on authentication and permissions with redirect handling.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import ProtectedRoute from '../components/ProtectedRoute';`}</code>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger>Management Interfaces</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-4">
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">AddDriverModal</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Modal for adding new drivers with document upload and bank details collection.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { AddDriverModal } from '../components/AddDriverModal';`}</code>
-                        </div>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">ManageDriverModal</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Modal for managing existing drivers with document management and status updates.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { ManageDriverModal } from '../components/ManageDriverModal';`}</code>
-                        </div>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">OrgChart</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Visual representation of organizational structure with interactive org chart.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import OrgChart from '../components/OrgChart';`}</code>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-4">
-                  <AccordionTrigger>State Management</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-4">
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">VehicleStore</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Global vehicle state management with CRUD operations and document management.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { useVehicleStore } from '../stores/vehicleStore';`}</code>
-                        </div>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <h3 className="font-medium">DriverStore</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Global driver state management with CRUD operations and performance metrics.
-                        </p>
-                        <div className="mt-2 bg-muted p-2 rounded-md text-xs">
-                          <code>{`import { useDriverStore } from '../stores/driverStore';`}</code>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          </div>
-        </section>
+       
 
         {/* CTA Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary text-primary-foreground">
@@ -852,9 +663,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button variant="secondary" size="lg" className="bg-white text-primary hover:bg-white/90">
-                  View Live Demo
-                </Button>
+                
                 <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
                   GitHub Repository
                 </Button>

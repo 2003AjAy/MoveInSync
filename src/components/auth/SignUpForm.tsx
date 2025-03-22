@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { UserRole } from '../../db/schema/auth';
+import { Boxes } from '../background-boxes';
 
 export default function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -37,8 +38,13 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+      {/* Background Boxes */}
+      <div className="absolute inset-0 z-0">
+        <Boxes className="opacity-70" />
+      </div>
+      
+      <div className="max-w-md w-full space-y-8 relative z-10 bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-xl">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
