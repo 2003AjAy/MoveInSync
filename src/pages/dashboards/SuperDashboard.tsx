@@ -207,13 +207,7 @@ export default function SuperDashboard() {
         })}
       </div>
 
-      {/* Organization Chart - Increased height and better visibility */}
-      <div className="mb-8">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Organization Structure</h2>
-        <div className="bg-white rounded-lg shadow p-4" style={{ height: '800px' }}>
-          <OrgChart />
-        </div>
-      </div>
+      
 
       {/* Regional Performance Chart */}
       <div className="mb-8">
