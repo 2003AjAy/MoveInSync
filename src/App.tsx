@@ -16,6 +16,7 @@ import DriverList from './pages/DriverList';
 import VehicleList from './pages/VehicleList';
 import OrgChart from './components/OrgChart';
 import LoadingScreen from './components/LoadingScreen';
+import LandingPage from './components/landing-page';
 
 // Import stores
 import { useVendorStore } from './stores/vendorStore';
@@ -82,6 +83,7 @@ function App() {
       <Router basename="/VCDOS">
         <Routes>
           {/* Public Routes */}
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/signin" element={<SignInForm />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
@@ -185,9 +187,9 @@ function App() {
             } 
           />
           
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Redirect root to landing page */}
+          <Route path="/" element={<Navigate to="/landing" replace />} />
+          <Route path="*" element={<Navigate to="/landing" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
