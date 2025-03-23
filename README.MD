@@ -63,11 +63,11 @@ Access different admin levels by siginig up
 
 1. Clone the repository:
 
-git clone https://github.com/Pj-develop/VCDOS.git
+git clone https://github.com/2003AjAy/MoveInSync.git
 
 2. Install dependencies:
 ```bash
-cd VCDOS
+cd MoveInSync
 npm install
 ```
 
