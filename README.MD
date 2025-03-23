@@ -9,14 +9,11 @@ A comprehensive multi-level vendor management system for fleet operations, vehic
 
 ### Demo Credentials
 
-Access different admin levels using these credentials:
-
-- **Super Admin**: super@vendor.com
-- **Regional Admin**: north@vendor.com
-- **City Admin**: citya@vendor.com
-- **Local Admin**: local@vendor.com
-
-Password: Any 6+ characters
+Access different admin levels by siginig up 
+1. give the name to user
+2. email id
+3. password
+4. role: super admin, regional admin , city admin, local admin.
 
 
 ## 🚀 Features
@@ -55,11 +52,12 @@ Password: Any 6+ characters
 
 - **Frontend**: React.js with TypeScript
 - **State Management**: Zustand
-- **UI Components**: Tailwind CSS, Lucide Icons
+- **UI Components**: Tailwind CSS, Lucide Icons, shadcn ui.
 - **Charts**: Recharts
 - **Forms**: React Hook Form
 - **Routing**: React Router v6
 - **Type Checking**: TypeScript
+- **Database**: Neon DB, Drizzle oRM, PostgresSQL
 
 ## 📦 Installation
 
@@ -247,18 +245,9 @@ import { ManageDriverModal } from '../components/ManageDriverModal';
   - Status updates
   - Performance tracking
 
-### Dashboard Components
 
-#### 7. OrgChart
-```typescript
-import OrgChart from '../components/OrgChart';
-```
-- **Purpose**: Visual representation of organizational structure
-- **Features**:
-  - Interactive org chart
-  - Zoom controls
-  - Node editing
-  - Permission management
+
+
 
 ### Utility Components
 
@@ -297,23 +286,7 @@ import { useDriverStore } from '../stores/driverStore';
   - Onboarding workflow
   - Performance metrics
 
-### Usage Examples
 
-```typescript
-// Example: Using VendorHierarchyTree
-function VendorManagement() {
-  const handleVendorSelect = (vendor: Vendor) => {
-    // Handle vendor selection
-  };
-
-  return (
-    <VendorHierarchyTree
-      vendors={vendors}
-      onVendorSelect={handleVendorSelect}
-      selectedVendorId={selectedId}
-    />
-  );
-}
 
 // Example: Protected Route Usage
 <ProtectedRoute>
@@ -339,22 +312,7 @@ function VendorManagement() {
    - Implement lazy loading where appropriate
 
 
-## 🚀 Deployment
 
-1. Build the project:
-```bash
-npm run build
-```
-
-2. Deploy the `dist` directory to your hosting service
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
 
 ## 📄 License
 
@@ -362,12 +320,12 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## 👥 Team
 
-- Frontend Developer: [Priyanshu Jha]
+- Frontend Developer: [Ajay Yadav]
 
 
 ## 📞 Support
 
-For support, email priyanshu.k4444@gmail.com.
+For support, email ajay8546051144@gmail.com
 
 
 
