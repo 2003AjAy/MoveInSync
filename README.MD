@@ -3,9 +3,9 @@
 
 A comprehensive multi-level vendor management system for fleet operations, vehicle onboarding, and driver management with hierarchical access control.
 
-## 🌐 Live Demo
 
-Visit the live application at: [https://pj-develop.github.io/VCDOS/](https://pj-develop.github.io/VCDOS/)
+
+
 
 ### Demo Credentials
 

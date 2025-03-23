@@ -57,7 +57,7 @@ export default function LandingPage() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Vendor Cab and Driver Onboarding System
+                    Vendor Cab and Driver Onboarding System and Vendors Hierarchy management
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
                     A comprehensive multi-level vendor management system for fleet operations, vehicle onboarding, and
@@ -634,9 +634,11 @@ export default function LandingPage() {
                 { name: "Zustand", icon: "🐻" },
                 { name: "Tailwind CSS", icon: "🎨" },
                 { name: "Recharts", icon: "📊" },
-                { name: "React Router", icon: "🔀" },
                 { name: "React Hook Form", icon: "📝" },
                 { name: "Lucide Icons", icon: "🔍" },
+                { name: "Neon DB", icon: "🌐" },
+                { name: "Drizzle ORM", icon: "💾" },
+                { name: "PostgreSQL", icon: "🐘" },
               ].map((tech) => (
                 <div
                   key={tech.name}
@@ -646,6 +648,14 @@ export default function LandingPage() {
                   <h3 className="text-sm font-medium">{tech.name}</h3>
                 </div>
               ))}
+            </div>
+            <div className="mt-12 text-center max-w-3xl mx-auto">
+              <h3 className="text-2xl font-semibold">Database and ORM</h3>
+              <p className="text-muted-foreground md:text-lg">
+                Our application leverages PostgreSQL for robust and scalable database management, with Neon DB providing a
+                modern, serverless approach to hosting. Drizzle ORM simplifies database interactions, ensuring type-safe
+                queries and efficient data handling.
+              </p>
             </div>
           </div>
         </section>
@@ -684,16 +694,14 @@ export default function LandingPage() {
             &copy; {new Date().getFullYear()} Vendor Cab and Driver Onboarding System. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary">
+            <a href="https://github.com/2003AjAy" className="text-sm text-muted-foreground hover:text-primary" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary">
-              Documentation
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary">
+            <a href="mailto:ajay8546051144@gmail.com" className="text-sm text-muted-foreground hover:text-primary">
               Contact
             </a>
-          </div>
+</div>
+
         </div>
       </footer>
     </div>
