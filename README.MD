@@ -51,6 +51,7 @@ Access different admin levels by siginig up
 ## 🛠 Technology Stack
 
 - **Frontend**: React.js with TypeScript
+- **Backend**: Node.js
 - **State Management**: Zustand
 - **UI Components**: Tailwind CSS, Lucide Icons, shadcn ui.
 - **Charts**: Recharts
