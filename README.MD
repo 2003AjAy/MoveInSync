@@ -55,8 +55,6 @@ Access different admin levels by siginig up
 - **State Management**: Zustand
 - **UI Components**: Tailwind CSS, Lucide Icons, shadcn ui.
 - **Charts**: Recharts
-- **Forms**: React Hook Form
-- **Routing**: React Router v6
 - **Type Checking**: TypeScript
 - **Database**: Neon DB, Drizzle oRM, PostgresSQL
 
